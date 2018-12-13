@@ -26,6 +26,7 @@ package com.serenegiant.usbcameratest;
 import android.graphics.SurfaceTexture;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -139,7 +140,15 @@ public final class MainActivity extends BaseActivity implements CameraDialog.Cam
 				@Override
 				public void run() {
 					final UVCCamera camera = new UVCCamera();
-					camera.open(ctrlBlock);
+					try {
+						camera.open(ctrlBlock);
+						Log.w("yyyyyyyyyyyyyyyyyyyyyyy", "supportedSize:" + camera.getSupportedSize());
+					} catch (final UnsupportedOperationException | IllegalArgumentException e) {
+						Log.w("yyyyyyyyyyyyyyyyyyyyyyy", "Destroy Camera");
+
+						camera.destroy();
+						return;
+					}
 					camera.setStatusCallback(new IStatusCallback() {
 						@Override
 						public void onStatus(final int statusClass, final int event, final int selector,
@@ -188,7 +197,7 @@ public final class MainActivity extends BaseActivity implements CameraDialog.Cam
 						mPreviewSurface.release();
 						mPreviewSurface = null;
 					}
-					try {
+					/*try {
 						camera.setPreviewSize(UVCCamera.DEFAULT_PREVIEW_WIDTH, UVCCamera.DEFAULT_PREVIEW_HEIGHT, UVCCamera.FRAME_FORMAT_MJPEG);
 					} catch (final IllegalArgumentException e) {
 						// fallback to YUV mode
@@ -198,7 +207,7 @@ public final class MainActivity extends BaseActivity implements CameraDialog.Cam
 							camera.destroy();
 							return;
 						}
-					}
+					}*/
 					final SurfaceTexture st = mUVCCameraView.getSurfaceTexture();
 					if (st != null) {
 						mPreviewSurface = new Surface(st);
